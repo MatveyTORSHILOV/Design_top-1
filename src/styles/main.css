@@ -18,6 +18,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body.custom-cursor,
+body.custom-cursor * {
+  cursor: none !important;
+}
+
+body.custom-cursor.cursor-hover .cursor-glow {
+  width: 200px;
+  height: 200px;
+}
+
+body.custom-cursor.cursor-hover .cursor-ring {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(201, 162, 39, 0.7);
+}
+
+body.custom-cursor.cursor-pressed .cursor-dot {
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) translate(-50%, -50%) scale(0.6);
+}
+
+.reveal-block {
+  will-change: transform, opacity;
+}
+
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
@@ -150,28 +174,65 @@ a:focus-visible, button:focus-visible {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.08;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  pointer-events: auto;
 }
 
 .hero__bg-panel {
   background-size: cover;
   background-position: center;
   border-right: 1px solid var(--color-line);
+  opacity: 0.05;
+  will-change: transform, opacity;
+  filter: saturate(0.85) grayscale(0.2);
+  transition: filter 0.5s ease;
 }
 
-.hero__bg-panel:last-child { border-right: none; }
+.hero__bg-panel.is-lit,
+.hero__bg-panel:hover {
+  filter: saturate(1) grayscale(0);
+  z-index: 1;
+}
 
 .hero__inner {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   max-width: var(--content-max);
   width: 100%;
   margin: 0 auto;
+  pointer-events: none;
+}
+
+.hero__inner a {
+  pointer-events: auto;
+}
+
+.hero__statement {
+  pointer-events: none;
+}
+
+.kinetic-title {
+  perspective: 800px;
+  transform-style: preserve-3d;
+}
+
+.kinetic-line {
+  display: inline;
+}
+
+.kinetic-line--accent {
+  font-style: italic;
+  color: var(--color-gold);
+}
+
+.kinetic-char {
+  display: inline-block;
+  transform-origin: center bottom;
+  will-change: transform;
 }
 
 .hero__counter {

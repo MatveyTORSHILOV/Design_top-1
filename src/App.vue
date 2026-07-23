@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
+import { initRevealBlocks } from "./composables/useRevealBlocks.js";
 import PageLoader from "./components/PageLoader.vue";
+import CursorGlow from "./components/CursorGlow.vue";
 import SiteNav from "./components/SiteNav.vue";
 import HeroEditorial from "./components/HeroEditorial.vue";
 import ManifestoBlock from "./components/ManifestoBlock.vue";
@@ -16,10 +18,21 @@ import LightboxModal from "./components/LightboxModal.vue";
 
 const loaded = ref(false);
 const lightboxItem = ref(null);
+const pageRef = ref(null);
+let cleanupReveal = null;
 
 function onLoaded() {
   loaded.value = true;
 }
+
+watch(loaded, (val) => {
+  if (!val) return;
+  requestAnimationFrame(() => {
+    cleanupReveal = initRevealBlocks(pageRef.value);
+  });
+});
+
+onUnmounted(() => cleanupReveal?.());
 
 function openLightbox(item) {
   lightboxItem.value = item;
@@ -32,7 +45,8 @@ function closeLightbox() {
 
 <template>
   <PageLoader v-if="!loaded" @done="onLoaded" />
-  <div class="page" :style="{ visibility: loaded ? 'visible' : 'hidden' }">
+  <CursorGlow v-if="loaded" />
+  <div ref="pageRef" class="page" :style="{ visibility: loaded ? 'visible' : 'hidden' }">
     <SiteNav />
     <HeroEditorial />
     <ManifestoBlock />
