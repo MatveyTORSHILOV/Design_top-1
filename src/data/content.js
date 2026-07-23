@@ -1,27 +1,78 @@
 export const navLinks = [
-  { id: "primal", label: "Исток" },
-  { id: "prologue", label: "Пролог" },
-  { id: "tensions", label: "Противоречия" },
-  { id: "ascent", label: "Восхождение" },
-  { id: "gallery", label: "Салон" },
-  { id: "epoch", label: "Эпоха" },
-  { id: "epilogue", label: "Выход" },
+  { id: "salon", label: "salon" },
+  { id: "exposition", label: "exposition" },
+  { id: "contact", label: "contact" },
 ];
 
 export const heroPanels = [
-  { image: "/assets/gallery/art-panels.jpg", num: "I" },
-  { image: "/assets/gallery/art-salon.jpg", num: "II" },
-  { image: "/assets/gallery/art-vertical.jpg", num: "III" },
-  { image: "/assets/gallery/art-code.jpg", num: "IV" },
-  { image: "/assets/gallery/art-salon.jpg", num: "V" },
-  { image: "/assets/gallery/art-panels.jpg", num: "VI" },
+  { image: "/assets/gallery/art-panels.jpg" },
+  { image: "/assets/gallery/art-salon.jpg" },
+  { image: "/assets/gallery/art-vertical.jpg" },
+  { image: "/assets/gallery/art-code.jpg" },
 ];
 
-export const floatingPhrases = [
-  "Форма предшествует слову",
-  "Рука помнит раньше разума",
-  "Каждый штрих — акт сопротивления тьме",
-  "Вертикаль — это молитва",
+export const manifesto = {
+  label: "The step aside",
+  lineA: "Большинство музеев вешают картины.",
+  lineB: "Мы предпочитаем напряжение.",
+  body: "В мире бесконечных изображений редкость — ясность. Форма защищает идею, опыт смещает восприятие, стиль меняет то, как человек видит реальность.",
+};
+
+export const primal = {
+  label: "The origin",
+  title: "До слова было пятно.",
+  lead: "Сорок тысяч лет назад рука коснулась стены — не для красоты, а чтобы удержать мамонта, страх, ночь.",
+  body: "Ар-деко — не противоположность пещере. Это тот же жест через эпохи: человек оставляет след, чтобы сказать — я был, я чувствовал, я формировал реальность.",
+  accent: "Дизайн = глубина. Суть. Смысл. Место.",
+};
+
+export const prologue = {
+  label: "The perspective",
+  title: "Формы следуют перспективе.",
+  quote:
+    "«Дизайн должен быть функциональным» — ложь для тех, кто боится формы. Декоративность может быть несущей конструкцией смысла.",
+  cite: "Манифест зала · O.VERA.VERBER",
+};
+
+export const salonIntro = {
+  vertical: "salon",
+  titleA: "Хорошие выставки показывают.",
+  titleB: "Великие — удивляют.",
+};
+
+export const works = [
+  {
+    num: "01",
+    title: "Шесть панелей",
+    tagline: "Где вкус встречает синтез.",
+    image: "/assets/gallery/art-panels.jpg",
+    alt: "Шестипанельная композиция ар-деко",
+    caption: "Синтез восточной перспективы и ар-деко",
+  },
+  {
+    num: "02",
+    title: "Салон",
+    tagline: "Гедонизм после тьмы.",
+    image: "/assets/gallery/art-salon.jpg",
+    alt: "Интерьер ар-деко",
+    caption: "Нуар · Город · Коктейль",
+  },
+  {
+    num: "03",
+    title: "Вертикаль",
+    tagline: "Амбиция, высеченная в небе.",
+    image: "/assets/gallery/art-vertical.jpg",
+    alt: "Обложка Art Deco",
+    caption: "Небоскрёб · Париж · 1925",
+  },
+  {
+    num: "04",
+    title: "Кодекс",
+    tagline: "Невидимое, сделанное видимым.",
+    image: "/assets/gallery/art-code.jpg",
+    alt: "Инфографика Art Deco",
+    caption: "Геометрия · Материалы · Символы",
+  },
 ];
 
 export const tensions = [
@@ -29,117 +80,73 @@ export const tensions = [
     num: "01",
     poleA: "Оптимизм",
     poleB: "Травма",
-    psych: "Психология · Гедонизм после раны",
     title: "Праздник как броня",
-    text: "После потрясений общество жаждало красоты, комфорта, радости — не из легкомыслия, а из необходимости снова почувствовать себя живым. Ар-деко провозгласил гламур выживательным: блеск как ритуал возвращения к жизни.",
+    text: "Гламур выживательный — блеск как ритуал возвращения к жизни.",
   },
   {
     num: "02",
     poleA: "Древнее",
     poleB: "Машина",
-    psych: "Психология · Синтез несочетаемого",
-    title: "Гробница Тутанхамона и небоскрёб",
-    text: "Стиль соединял кубистическую геометрию с египетскими, африканскими, мезоамериканскими мотивами. Прошлое служит опорой для будущего — не ностальгии, а трамплина.",
+    title: "Тутанхамон и небоскрёб",
+    text: "Прошлое — трамплин, не ностальгия.",
   },
   {
     num: "03",
     poleA: "Функция",
     poleB: "Орнамент",
-    psych: "Психология · Форма как несущий смысл",
-    title: "Декор, который держит конструкцию",
-    text: "Орнамент не лежит поверх — он формирует композицию. Ступень ведёт взгляд вверх, шеврон фиксирует динамику, солнцеворот собирает энергию в центр.",
+    title: "Декор держит конструкцию",
+    text: "Красота работает: ступень, шеврон, солнцеворот.",
   },
   {
     num: "04",
     poleA: "Человек",
     poleB: "Индустрия",
-    psych: "Психология · Культ машинного века",
     title: "Хром, скорость, зиккурат",
-    text: "Зигзаг — метафора энергии. Ступенчатые формы — величие, достижимое инженерией. Человек не жертва прогресса, а его дирижёр.",
+    text: "Человек — дирижёр прогресса, не его жертва.",
   },
   {
     num: "05",
     poleA: "Единство",
     poleB: "Эклектика",
-    psych: "Психология · Диалог культур",
     title: "Мир без центра, но с осью",
-    text: "Ар-деко собирал мир в одну витрину — универсальную, но насыщенную. Страх разобщённости компенсируется синтезом.",
+    text: "Синтез компенсирует страх разобщённости.",
   },
 ];
 
-export const galleryItems = [
-  {
-    src: "/assets/gallery/art-panels.jpg",
-    alt: "Шестипанельная композиция в стиле ар-деко",
-    title: "Шесть панелей",
-    desc: "Синтез · Восток · Геометрия",
-    caption: "Шесть панелей · Синтез восточной перспективы и ар-деко",
-    class: "gallery__item--hero",
-  },
-  {
-    src: "/assets/gallery/art-salon.jpg",
-    alt: "Интерьер ар-деко",
-    title: "Салон",
-    desc: "Гедонизм · Нуар · Город",
-    caption: "Нуар · Гедонизм после тьмы",
-    class: "gallery__item--tall",
-  },
-  {
-    src: "/assets/gallery/art-vertical.jpg",
-    alt: "Обложка Art Deco",
-    title: "Вертикаль",
-    desc: "Небоскрёб · Амбиция",
-    caption: "Вертикаль · Амбиция эпохи",
-    class: "gallery__item--half",
-  },
-  {
-    src: "/assets/gallery/art-code.jpg",
-    alt: "Инфографика Art Deco",
-    title: "Кодекс",
-    desc: "Геометрия · Материалы · Символы",
-    caption: "Карта стиля · Пять столпов ар-деко",
-    class: "gallery__item--half",
-  },
-];
-
-export const materials = [
-  { name: "Or", hex: "#C9A227", bg: "#c9a227" },
-  { name: "Obsidian", hex: "#08080A", bg: "#08080a" },
-  { name: "Émeraude", hex: "#1B3B2F", bg: "#1b3b2f" },
-  { name: "Cramoisi", hex: "#6B1C2A", bg: "#6b1c2a" },
-  { name: "Cuivre", hex: "#B87333", bg: "#b87333" },
-  { name: "Chrome", hex: "#B8B8B8", bg: "linear-gradient(135deg, #e8e8e8, #a0a0a0)" },
-];
+export const studio = {
+  label: "The studio",
+  intro:
+    "Мы назвали это FORMË — потому что началось с парадокса: пустое пространство, достаточно открытое, чтобы стать чем угодно.",
+  disciplines: [
+    "Психология формы",
+    "Живопись ар-деко",
+    "Геометрия смысла",
+    "Материалы эпохи",
+    "Хронология жеста",
+    "Выставочный нарратив",
+  ],
+  materials: [
+    { name: "Or", hex: "#C9A227" },
+    { name: "Obsidian", hex: "#08080A" },
+    { name: "Émeraude", hex: "#1B3B2F" },
+    { name: "Cramoisi", hex: "#6B1C2A" },
+    { name: "Cuivre", hex: "#B87333" },
+    { name: "Chrome", hex: "#B8B8B8" },
+  ],
+};
 
 export const epochPoints = [
-  {
-    year: "40 000",
-    event: "Первый жест",
-    context: "Пещера. Уголь. Мамонт. Человек впервые оставляет след — не для красоты, а чтобы сказать: я был здесь.",
-  },
-  {
-    year: "1910",
-    event: "Рождение «стиля 1925»",
-    context: "Парижские мастерские. Мир ещё не знает названия — но уже тянется к форме.",
-  },
-  {
-    year: "1922",
-    event: "Тутанхамон",
-    context: "Египетский мотив входит в западную психологию — экзотика как обещание вечности.",
-  },
-  {
-    year: "1925",
-    event: "Exposition des Arts Décoratifs",
-    context: "Париж. Стиль получает имя. Декоративное становится революционным.",
-  },
-  {
-    year: "1930",
-    event: "Streamline Moderne",
-    context: "Авиация, скорость. Машина становится телом эпохи.",
-  },
-  {
-    year: "1939",
-    event: "Закат золотого века",
-    context: "Война снова. Но форма остаётся — в архитектуре, в памяти, на холсте.",
-  },
+  { year: "40 000", event: "Первый жест", context: "Пещера. Уголь. Мамонт." },
+  { year: "1922", event: "Тутанхамон", context: "Египет входит в западную психологию." },
+  { year: "1925", event: "Exposition", context: "Стиль получает имя." },
+  { year: "1930", event: "Streamline", context: "Машина становится телом эпохи." },
+  { year: "1939", event: "Закат", context: "Форма остаётся." },
+];
+
+export const marqueeText = "forme — форма — forme — форма — ";
+
+export const floatingPhrases = [
+  "Форма предшествует слову",
+  "Рука помнит раньше разума",
+  "Вертикаль — это молитва",
 ];

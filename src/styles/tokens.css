@@ -1,45 +1,34 @@
 :root {
-  /* Primitive — Art Deco palette */
-  --color-obsidian: #08080a;
-  --color-ink: #0f0f12;
-  --color-parchment: #f0e6d3;
-  --color-cream: #e8dcc8;
-  --color-gold: #c9a227;
-  --color-gold-light: #e4c76b;
-  --color-bronze: #8b6914;
-  --color-copper: #b87333;
-  --color-emerald: #1b3b2f;
-  --color-emerald-deep: #0d241c;
-  --color-crimson: #6b1c2a;
-  --color-crimson-glow: #9a2a3d;
-  --color-chrome: #b8b8b8;
-  --color-smoke: #2a2a30;
+  --color-paper: #f4f0e8;
+  --color-paper-warm: #ebe4d6;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #2a2826;
   --color-muted: #6b6560;
+  --color-line: rgba(10, 10, 10, 0.12);
 
-  /* Semantic */
-  --color-background: var(--color-obsidian);
-  --color-surface: var(--color-ink);
-  --color-foreground: var(--color-parchment);
+  --color-gold: #a8841a;
+  --color-gold-light: #c9a227;
+  --color-crimson: #6b1c2a;
+  --color-emerald: #1b3b2f;
+
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
   --color-accent: var(--color-gold);
-  --color-accent-secondary: var(--color-copper);
-  --color-border: rgba(201, 162, 39, 0.35);
-  --color-border-strong: var(--color-gold);
 
-  /* Typography — ui-ux-pro-max recommendation + narrative serif */
-  --font-display: "Poiret One", "Bifur", Georgia, serif;
-  --font-narrative: "Cormorant Garamond", "Didact Gothic", Georgia, serif;
-  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-deco: "Poiret One", serif;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.5rem;
-  --text-3xl: 3.5rem;
-  --text-hero: clamp(3.5rem, 12vw, 9rem);
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.75rem, 4vw, 2.75rem);
+  --text-2xl: clamp(2.5rem, 6vw, 4.5rem);
+  --text-3xl: clamp(3rem, 8vw, 6.5rem);
+  --text-hero: clamp(3.5rem, 11vw, 9rem);
 
-  /* Spacing — density 3/10, padding ≥ font-size × 1.5 */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
@@ -48,12 +37,11 @@
   --space-2xl: 6rem;
   --space-3xl: 9rem;
 
-  --content-max: 72rem;
-  --panel-count: 6;
+  --content-max: 88rem;
+  --page-pad: clamp(1.25rem, 4vw, 3rem);
 
-  /* Motion */
-  --ease-formal: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --duration-fast: 180ms;
-  --duration-base: 400ms;
-  --duration-slow: 700ms;
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 200ms;
+  --duration-base: 500ms;
+  --duration-slow: 900ms;
 }

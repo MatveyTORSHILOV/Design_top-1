@@ -13,11 +13,7 @@ watch(
   () => props.item,
   (item) => {
     if (!item || !overlayRef.value) return;
-    gsap.fromTo(
-      overlayRef.value,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, ease: "power2.out" }
-    );
+    gsap.fromTo(overlayRef.value, { opacity: 0 }, { opacity: 1, duration: 0.4 });
   }
 );
 
@@ -48,13 +44,12 @@ onUnmounted(() => document.removeEventListener("keydown", onKey));
     class="lightbox is-open"
     role="dialog"
     aria-modal="true"
-    aria-label="Просмотр работы"
     @click.self="close"
   >
-    <button class="lightbox__close" type="button" @click="close">Закрыть</button>
+    <button class="lightbox__close" type="button" @click="close">close</button>
     <div class="lightbox__content">
-      <img :src="item.src" :alt="item.alt" />
-      <p class="lightbox__caption">{{ item.caption }}</p>
+      <img :src="item.image || item.src" :alt="item.alt" />
+      <p class="lightbox__caption">{{ item.caption || item.tagline }}</p>
     </div>
   </div>
 </template>
