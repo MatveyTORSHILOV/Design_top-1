@@ -11,87 +11,12 @@ const hillPathRef = ref(null);
 const glowRef = ref(null);
 const borderRectRef = ref(null);
 const quoteBlockRef = ref(null);
-const trees = ref([]);
-const showTreesLayer = ref(false);
-
-// dir: 'up' = корень на линии, растёт вверх; 'down' = вниз
-const treeSlots = [
-  { at: 0.26, dir: "up" },
-  { at: 0.4, dir: "down" },
-  { at: 0.54, dir: "up" },
-  { at: 0.68, dir: "down" },
-  { at: 0.82, dir: "up" },
-];
 
 let ctx;
 let borderTween;
 let lineTimeline;
-let treesTimeline;
 let played = false;
 let borderStarted = false;
-
-function placeTrees() {
-  const path = hillPathRef.value;
-  if (!path) return;
-
-  const len = path.getTotalLength();
-  trees.value = treeSlots.map((slot, i) => {
-    const pt = path.getPointAtLength(len * slot.at);
-    return { x: pt.x, y: pt.y, dir: slot.dir, id: i };
-  });
-}
-
-function drawTreeLines() {
-  showTreesLayer.value = true;
-
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      const groups = sectionRef.value?.querySelectorAll(".perspective-tree");
-      if (!groups?.length) {
-        resolve();
-        return;
-      }
-
-      treesTimeline?.kill();
-      treesTimeline = gsap.timeline({ onComplete: resolve });
-
-      groups.forEach((group, gi) => {
-        const lines = group.querySelectorAll(".tree-draw");
-        lines.forEach((line) => {
-          const lineLen = line.getTotalLength();
-          gsap.set(line, {
-            strokeDasharray: lineLen,
-            strokeDashoffset: lineLen,
-            opacity: 1,
-          });
-        });
-
-        treesTimeline.to(
-          lines,
-          {
-            strokeDashoffset: 0,
-            duration: 0.38,
-            stagger: 0.05,
-            ease: "power2.out",
-          },
-          gi * 0.18
-        );
-      });
-    });
-  });
-}
-
-function hideTrees() {
-  showTreesLayer.value = false;
-  trees.value = [];
-}
-
-function resetTreeLines() {
-  treesTimeline?.kill();
-  const lines = sectionRef.value?.querySelectorAll(".tree-draw");
-  lines?.forEach((line) => gsap.killTweensOf(line));
-  hideTrees();
-}
 
 function startBorderAnimation() {
   if (borderStarted) return;
@@ -159,19 +84,14 @@ function playSequence() {
     onComplete() {
       updateGlow(1);
       if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
+      startBorderAnimation();
     },
-  });
-
-  lineTimeline.call(() => {
-    placeTrees();
-    drawTreeLines().then(startBorderAnimation);
   });
 }
 
 function resetSequence() {
   played = false;
   lineTimeline?.kill();
-  resetTreeLines();
   stopBorder();
 
   const path = hillPathRef.value;
@@ -229,7 +149,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   lineTimeline?.kill();
-  treesTimeline?.kill();
   borderTween?.kill();
   ctx?.revert();
 });
@@ -243,7 +162,6 @@ onUnmounted(() => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <!-- Старт у левого низа, финиш у правого верха — с отступами от краёв -->
       <path
         ref="hillPathRef"
         class="hill-line"
@@ -252,38 +170,6 @@ onUnmounted(() => {
       />
 
       <circle ref="glowRef" class="hill-tip-glow" r="1.5" cx="8" cy="92" opacity="0" />
-
-      <g v-if="showTreesLayer" class="perspective-trees">
-        <g
-          v-for="tree in trees"
-          :key="tree.id"
-          class="perspective-tree"
-          :transform="`translate(${tree.x} ${tree.y})`"
-        >
-          <template v-if="tree.dir === 'up'">
-            <line class="tree-draw tree-trunk" x1="0" y1="0" x2="0" y2="-6.2" />
-            <line class="tree-draw" x1="0" y1="-1.8" x2="-2.4" y2="-0.4" />
-            <line class="tree-draw" x1="0" y1="-1.8" x2="2.4" y2="-0.4" />
-            <line class="tree-draw" x1="0" y1="-3.4" x2="-2" y2="-1.8" />
-            <line class="tree-draw" x1="0" y1="-3.4" x2="2" y2="-1.8" />
-            <line class="tree-draw" x1="0" y1="-4.8" x2="-1.5" y2="-3.4" />
-            <line class="tree-draw" x1="0" y1="-4.8" x2="1.5" y2="-3.4" />
-            <line class="tree-draw" x1="0" y1="-6.2" x2="-0.9" y2="-5.3" />
-            <line class="tree-draw" x1="0" y1="-6.2" x2="0.9" y2="-5.3" />
-          </template>
-          <template v-else>
-            <line class="tree-draw tree-trunk" x1="0" y1="0" x2="0" y2="6.2" />
-            <line class="tree-draw" x1="0" y1="1.8" x2="-2.4" y2="0.4" />
-            <line class="tree-draw" x1="0" y1="1.8" x2="2.4" y2="0.4" />
-            <line class="tree-draw" x1="0" y1="3.4" x2="-2" y2="1.8" />
-            <line class="tree-draw" x1="0" y1="3.4" x2="2" y2="1.8" />
-            <line class="tree-draw" x1="0" y1="4.8" x2="-1.5" y2="3.4" />
-            <line class="tree-draw" x1="0" y1="4.8" x2="1.5" y2="3.4" />
-            <line class="tree-draw" x1="0" y1="6.2" x2="-0.9" y2="5.3" />
-            <line class="tree-draw" x1="0" y1="6.2" x2="0.9" y2="5.3" />
-          </template>
-        </g>
-      </g>
     </svg>
 
     <div class="section__inner perspective__inner">
@@ -340,17 +226,6 @@ onUnmounted(() => {
   fill: #e8a020;
   filter: blur(0.5px) drop-shadow(0 0 2px rgba(232, 160, 32, 0.8));
   pointer-events: none;
-}
-
-.tree-draw {
-  stroke: #e8a020;
-  stroke-width: 0.36;
-  stroke-linecap: round;
-  opacity: 0;
-}
-
-.tree-trunk {
-  stroke-width: 0.42;
 }
 
 .perspective__inner {
@@ -420,10 +295,6 @@ onUnmounted(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .hill-line {
-    opacity: 1 !important;
-    stroke-dashoffset: 0 !important;
-  }
-  .tree-draw {
     opacity: 1 !important;
     stroke-dashoffset: 0 !important;
   }
