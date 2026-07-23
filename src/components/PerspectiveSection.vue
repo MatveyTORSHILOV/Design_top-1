@@ -89,13 +89,8 @@ onUnmounted(() => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <line
-        class="hill-line"
-        x1="8"
-        y1="92"
-        x2="87"
-        y2="12"
-      />
+      <!-- Одна прямая: отступ слева и сверху-справа -->
+      <line class="section-line" x1="7" y1="91" x2="86" y2="11" />
     </svg>
 
     <div class="section__inner perspective__inner">
@@ -140,9 +135,9 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.hill-line {
+.section-line {
   stroke: #e8a020;
-  stroke-width: 0.5;
+  stroke-width: 0.45;
   stroke-linecap: round;
 }
 
