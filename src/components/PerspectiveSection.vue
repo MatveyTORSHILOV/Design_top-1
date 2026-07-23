@@ -8,22 +8,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 const sectionRef = ref(null);
 const hillPathRef = ref(null);
+const glowRef = ref(null);
 const borderRectRef = ref(null);
 const quoteBlockRef = ref(null);
 const trees = ref([]);
-const lineDrawn = ref(false);
+const showTreesLayer = ref(false);
 
+// dir: 'up' = корень на линии, растёт вверх; 'down' = вниз
 const treeSlots = [
-  { at: 0.22, flip: false },
-  { at: 0.38, flip: true },
-  { at: 0.52, flip: false },
-  { at: 0.68, flip: true },
-  { at: 0.82, flip: true },
+  { at: 0.26, dir: "up" },
+  { at: 0.4, dir: "down" },
+  { at: 0.54, dir: "up" },
+  { at: 0.68, dir: "down" },
+  { at: 0.82, dir: "up" },
 ];
 
 let ctx;
 let borderTween;
+let lineTimeline;
+let treesTimeline;
 let played = false;
+let borderStarted = false;
 
 function placeTrees() {
   const path = hillPathRef.value;
@@ -32,54 +37,102 @@ function placeTrees() {
   const len = path.getTotalLength();
   trees.value = treeSlots.map((slot, i) => {
     const pt = path.getPointAtLength(len * slot.at);
-    const ptNext = path.getPointAtLength(Math.min(len, len * slot.at + 2));
-    const angle = (Math.atan2(ptNext.y - pt.y, ptNext.x - pt.x) * 180) / Math.PI - 90;
-    return { x: pt.x, y: pt.y, angle: slot.flip ? angle + 180 : angle, id: i };
+    return { x: pt.x, y: pt.y, dir: slot.dir, id: i };
   });
 }
 
-function showTrees() {
-  lineDrawn.value = true;
-  gsap.from(".perspective-tree", {
-    opacity: 0,
-    scale: 0,
-    duration: 0.5,
-    stagger: 0.12,
-    ease: "back.out(2)",
-    transformOrigin: "center bottom",
+function drawTreeLines() {
+  showTreesLayer.value = true;
+
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      const groups = sectionRef.value?.querySelectorAll(".perspective-tree");
+      if (!groups?.length) {
+        resolve();
+        return;
+      }
+
+      treesTimeline?.kill();
+      treesTimeline = gsap.timeline({ onComplete: resolve });
+
+      groups.forEach((group, gi) => {
+        const lines = group.querySelectorAll(".tree-draw");
+        lines.forEach((line) => {
+          const lineLen = line.getTotalLength();
+          gsap.set(line, {
+            strokeDasharray: lineLen,
+            strokeDashoffset: lineLen,
+            opacity: 1,
+          });
+        });
+
+        treesTimeline.to(
+          lines,
+          {
+            strokeDashoffset: 0,
+            duration: 0.38,
+            stagger: 0.05,
+            ease: "power2.out",
+          },
+          gi * 0.18
+        );
+      });
+    });
   });
 }
 
 function hideTrees() {
-  lineDrawn.value = false;
-  gsap.set(".perspective-tree", { opacity: 0, scale: 0 });
+  showTreesLayer.value = false;
+  trees.value = [];
+}
+
+function resetTreeLines() {
+  treesTimeline?.kill();
+  const lines = sectionRef.value?.querySelectorAll(".tree-draw");
+  lines?.forEach((line) => gsap.killTweensOf(line));
+  hideTrees();
 }
 
 function startBorderAnimation() {
+  if (borderStarted) return;
+  borderStarted = true;
+
   const rect = borderRectRef.value;
   const block = quoteBlockRef.value;
   if (!rect || !block) return;
 
   const w = block.clientWidth;
   const h = block.clientHeight;
-  rect.setAttribute("width", w - 2);
-  rect.setAttribute("height", h - 2);
+  rect.setAttribute("width", Math.max(0, w - 2));
+  rect.setAttribute("height", Math.max(0, h - 2));
 
   const perimeter = 2 * (w + h);
-  const segment = Math.min(120, perimeter * 0.22);
+  const segment = Math.min(100, perimeter * 0.2);
 
   borderTween?.kill();
-  gsap.set(rect, {
-    strokeDasharray: `${segment} ${perimeter}`,
-    strokeDashoffset: 0,
-  });
-
+  gsap.set(rect, { strokeDasharray: `${segment} ${perimeter}`, strokeDashoffset: 0 });
   borderTween = gsap.to(rect, {
     strokeDashoffset: -perimeter,
-    duration: 5,
+    duration: 4.5,
     ease: "none",
     repeat: -1,
   });
+}
+
+function stopBorder() {
+  borderStarted = false;
+  borderTween?.kill();
+}
+
+function updateGlow(progress) {
+  const path = hillPathRef.value;
+  if (!path || !glowRef.value) return;
+
+  const len = path.getTotalLength();
+  const tip = path.getPointAtLength(len * progress);
+  glowRef.value.setAttribute("cx", tip.x);
+  glowRef.value.setAttribute("cy", tip.y);
+  glowRef.value.setAttribute("opacity", progress > 0.02 && progress < 0.995 ? 0.9 : 0);
 }
 
 function playSequence() {
@@ -91,66 +144,92 @@ function playSequence() {
 
   const len = path.getTotalLength();
   gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
+  updateGlow(0);
 
-  gsap.to(path, {
+  lineTimeline?.kill();
+  lineTimeline = gsap.timeline();
+
+  lineTimeline.to(path, {
     strokeDashoffset: 0,
-    duration: 2.8,
-    ease: "power2.inOut",
-    onComplete: () => {
-      placeTrees();
-      showTrees();
-      startBorderAnimation();
+    duration: 2.6,
+    ease: "power1.inOut",
+    onUpdate() {
+      updateGlow(this.progress());
+    },
+    onComplete() {
+      updateGlow(1);
+      if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
     },
   });
 
-  gsap.from(".perspective__title, .section-tag", {
-    opacity: 0,
-    y: 30,
-    duration: 1,
-    stagger: 0.15,
-    ease: "power2.out",
-  });
-
-  gsap.from(".quote-block__content", {
-    opacity: 0,
-    x: 40,
-    duration: 1,
-    delay: 0.4,
-    ease: "power2.out",
+  lineTimeline.call(() => {
+    placeTrees();
+    drawTreeLines().then(startBorderAnimation);
   });
 }
 
 function resetSequence() {
   played = false;
-  borderTween?.kill();
-  hideTrees();
+  lineTimeline?.kill();
+  resetTreeLines();
+  stopBorder();
 
   const path = hillPathRef.value;
   if (path) {
     const len = path.getTotalLength();
-    gsap.set(path, { strokeDashoffset: len, opacity: 0 });
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
   }
+  if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
+}
+
+function initPath() {
+  const path = hillPathRef.value;
+  if (!path) return;
+  const len = path.getTotalLength();
+  gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
+  if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
 }
 
 onMounted(() => {
   ctx = gsap.context(() => {
+    initPath();
+
     ScrollTrigger.create({
       trigger: sectionRef.value,
-      start: "top 70%",
+      start: "top 72%",
       end: "bottom 20%",
       onEnter: playSequence,
-      onEnterBack: playSequence,
       onLeave: resetSequence,
       onLeaveBack: resetSequence,
     });
 
-    if (ScrollTrigger.isInViewport(sectionRef.value)) {
-      playSequence();
-    }
+    gsap.from(".perspective__title, .section-tag", {
+      opacity: 0,
+      y: 24,
+      duration: 0.9,
+      scrollTrigger: {
+        trigger: sectionRef.value,
+        start: "top 80%",
+        toggleActions: "play reverse play reverse",
+      },
+    });
+
+    gsap.from(".quote-block__content", {
+      opacity: 0,
+      x: 30,
+      duration: 0.9,
+      scrollTrigger: {
+        trigger: quoteBlockRef.value,
+        start: "top 90%",
+        toggleActions: "play reverse play reverse",
+      },
+    });
   }, sectionRef);
 });
 
 onUnmounted(() => {
+  lineTimeline?.kill();
+  treesTimeline?.kill();
   borderTween?.kill();
   ctx?.revert();
 });
@@ -164,40 +243,47 @@ onUnmounted(() => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <defs>
-        <filter id="hill-glow">
-          <feGaussianBlur stdDeviation="0.4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
+      <!-- Старт у левого низа, финиш у правого верха — с отступами от краёв -->
       <path
         ref="hillPathRef"
         class="hill-line"
-        d="M 0 100 L 18 78 L 38 62 L 58 42 L 78 22 L 100 6"
+        d="M 8 92 L 22 76 L 40 58 L 58 40 L 76 22 L 87 12"
         fill="none"
-        filter="url(#hill-glow)"
       />
 
-      <g v-if="lineDrawn" class="perspective-trees">
+      <circle ref="glowRef" class="hill-tip-glow" r="1.5" cx="8" cy="92" opacity="0" />
+
+      <g v-if="showTreesLayer" class="perspective-trees">
         <g
           v-for="tree in trees"
           :key="tree.id"
           class="perspective-tree"
-          :transform="`translate(${tree.x} ${tree.y}) rotate(${tree.angle})`"
+          :transform="`translate(${tree.x} ${tree.y})`"
         >
-          <line x1="0" y1="0" x2="0" y2="-3.2" class="tree-stem" />
-          <line x1="0" y1="-1.6" x2="-1.4" y2="-0.4" class="tree-branch" />
-          <line x1="0" y1="-1.6" x2="1.4" y2="-0.4" class="tree-branch" />
-          <line x1="0" y1="-2.4" x2="-1.1" y2="-1.2" class="tree-branch" />
-          <line x1="0" y1="-2.4" x2="1.1" y2="-1.2" class="tree-branch" />
+          <template v-if="tree.dir === 'up'">
+            <line class="tree-draw tree-trunk" x1="0" y1="0" x2="0" y2="-6.2" />
+            <line class="tree-draw" x1="0" y1="-1.8" x2="-2.4" y2="-0.4" />
+            <line class="tree-draw" x1="0" y1="-1.8" x2="2.4" y2="-0.4" />
+            <line class="tree-draw" x1="0" y1="-3.4" x2="-2" y2="-1.8" />
+            <line class="tree-draw" x1="0" y1="-3.4" x2="2" y2="-1.8" />
+            <line class="tree-draw" x1="0" y1="-4.8" x2="-1.5" y2="-3.4" />
+            <line class="tree-draw" x1="0" y1="-4.8" x2="1.5" y2="-3.4" />
+            <line class="tree-draw" x1="0" y1="-6.2" x2="-0.9" y2="-5.3" />
+            <line class="tree-draw" x1="0" y1="-6.2" x2="0.9" y2="-5.3" />
+          </template>
+          <template v-else>
+            <line class="tree-draw tree-trunk" x1="0" y1="0" x2="0" y2="6.2" />
+            <line class="tree-draw" x1="0" y1="1.8" x2="-2.4" y2="0.4" />
+            <line class="tree-draw" x1="0" y1="1.8" x2="2.4" y2="0.4" />
+            <line class="tree-draw" x1="0" y1="3.4" x2="-2" y2="1.8" />
+            <line class="tree-draw" x1="0" y1="3.4" x2="2" y2="1.8" />
+            <line class="tree-draw" x1="0" y1="4.8" x2="-1.5" y2="3.4" />
+            <line class="tree-draw" x1="0" y1="4.8" x2="1.5" y2="3.4" />
+            <line class="tree-draw" x1="0" y1="6.2" x2="-0.9" y2="5.3" />
+            <line class="tree-draw" x1="0" y1="6.2" x2="0.9" y2="5.3" />
+          </template>
         </g>
       </g>
-
-      <circle class="hill-origin-glow" cx="0" cy="100" r="1.8" />
     </svg>
 
     <div class="section__inner perspective__inner">
@@ -229,7 +315,7 @@ onUnmounted(() => {
 .perspective-section {
   position: relative;
   overflow: hidden;
-  min-height: 85vh;
+  min-height: 90vh;
   background: #0a0a0a;
 }
 
@@ -244,29 +330,33 @@ onUnmounted(() => {
 
 .hill-line {
   stroke: #e8a020;
-  stroke-width: 0.55;
+  stroke-width: 0.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(232, 160, 32, 0.5));
+}
+
+.hill-tip-glow {
+  fill: #e8a020;
+  filter: blur(0.5px) drop-shadow(0 0 2px rgba(232, 160, 32, 0.8));
+  pointer-events: none;
+}
+
+.tree-draw {
+  stroke: #e8a020;
+  stroke-width: 0.36;
+  stroke-linecap: round;
   opacity: 0;
 }
 
-.hill-origin-glow {
-  fill: #e8a020;
-  opacity: 0.7;
-  filter: blur(0.3px);
-}
-
-.tree-stem,
-.tree-branch {
-  stroke: #e8a020;
-  stroke-width: 0.35;
-  stroke-linecap: round;
+.tree-trunk {
+  stroke-width: 0.42;
 }
 
 .perspective__inner {
   position: relative;
   z-index: 2;
-  min-height: 75vh;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
 }
@@ -330,6 +420,10 @@ onUnmounted(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .hill-line {
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .tree-draw {
     opacity: 1 !important;
     stroke-dashoffset: 0 !important;
   }
