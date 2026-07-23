@@ -1,0 +1,10 @@
+{
+  "name": "forme-exhibition",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FORMË — Art Deco exhibition website",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "build": "echo 'Static site — no build step'"
+  }
+}
