@@ -8,7 +8,10 @@ import { manifesto } from "../data/content.js";
       <p class="section-tag">{{ manifesto.label }}</p>
       <div class="manifesto__headline">
         <span>{{ manifesto.lineA }}</span>
-        <span>{{ manifesto.lineB }}</span>
+        <span>
+          Мы предпочитаем
+          <span class="glitch-word" data-text="напряжение">напряжение</span>.
+        </span>
       </div>
       <p class="manifesto__body">{{ manifesto.body }}</p>
     </div>

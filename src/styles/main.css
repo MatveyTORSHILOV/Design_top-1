@@ -307,6 +307,82 @@ a:focus-visible, button:focus-visible {
   display: block;
 }
 
+.glitch-word {
+  position: relative;
+  display: inline-block;
+  color: var(--color-crimson);
+  font-style: italic;
+  animation: glitch-lag-main 3.2s infinite steps(1, end);
+}
+
+.glitch-word::before,
+.glitch-word::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--color-crimson);
+  background: transparent;
+  pointer-events: none;
+}
+
+.glitch-word::before {
+  animation: glitch-lag-a 3.2s infinite steps(1, end);
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  text-shadow: -3px 0 rgba(255, 0, 60, 0.85);
+}
+
+.glitch-word::after {
+  animation: glitch-lag-b 3.2s infinite steps(1, end);
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  text-shadow: 3px 0 rgba(139, 0, 0, 0.9);
+}
+
+@keyframes glitch-lag-main {
+  0%, 86%, 100% {
+    transform: translate(0);
+    opacity: 1;
+  }
+  87% { transform: translate(-4px, 1px) skewX(4deg); opacity: 0.85; }
+  88% { transform: translate(5px, -2px) skewX(-6deg); opacity: 1; }
+  89% { transform: translate(-2px, 0) skewX(2deg); opacity: 0.7; }
+  90% { transform: translate(3px, 1px); opacity: 1; }
+  91%, 95% { transform: translate(0); opacity: 1; }
+  96% { transform: translate(-6px, 0) skewX(-8deg); opacity: 0.6; }
+  97% { transform: translate(4px, -1px); opacity: 1; }
+  98%, 99% { transform: translate(0); opacity: 1; }
+}
+
+@keyframes glitch-lag-a {
+  0%, 86%, 100% { opacity: 0; transform: translate(0); }
+  87% { opacity: 1; transform: translate(3px, 0); }
+  88% { opacity: 0.8; transform: translate(-4px, 1px); }
+  89% { opacity: 1; transform: translate(2px, -1px); }
+  90% { opacity: 0; transform: translate(0); }
+  96% { opacity: 1; transform: translate(-5px, 0); }
+  97% { opacity: 0; transform: translate(0); }
+}
+
+@keyframes glitch-lag-b {
+  0%, 86%, 100% { opacity: 0; transform: translate(0); }
+  88% { opacity: 1; transform: translate(-3px, 1px); }
+  89% { opacity: 0.9; transform: translate(4px, 0); }
+  90% { opacity: 0; transform: translate(0); }
+  96% { opacity: 1; transform: translate(5px, -1px); }
+  97% { opacity: 0.7; transform: translate(-2px, 1px); }
+  98% { opacity: 0; transform: translate(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-word,
+  .glitch-word::before,
+  .glitch-word::after {
+    animation: none;
+  }
+}
+
 .manifesto__body {
   max-width: 32rem;
   font-size: var(--text-sm);
