@@ -31,11 +31,11 @@ function onLeave() {
 }
 
 function onDown() {
-  document.body.classList.add("cursor-pressed");
+  dotRef.value?.classList.add("is-pressed");
 }
 
 function onUp() {
-  document.body.classList.remove("cursor-pressed");
+  dotRef.value?.classList.remove("is-pressed");
 }
 
 function tick() {
@@ -83,7 +83,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  document.body.classList.remove("custom-cursor", "cursor-hover", "cursor-pressed");
+  document.body.classList.remove("custom-cursor", "cursor-hover");
   window.removeEventListener("mousemove", onMove);
   window.removeEventListener("mouseleave", onLeave);
   window.removeEventListener("mousedown", onDown);
