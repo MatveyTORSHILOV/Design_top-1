@@ -7,21 +7,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const sectionRef = ref(null);
-const hillPathRef = ref(null);
-const glowRef = ref(null);
 const borderRectRef = ref(null);
 const quoteBlockRef = ref(null);
 
 let ctx;
 let borderTween;
-let lineTimeline;
-let played = false;
-let borderStarted = false;
 
 function startBorderAnimation() {
-  if (borderStarted) return;
-  borderStarted = true;
-
   const rect = borderRectRef.value;
   const block = quoteBlockRef.value;
   if (!rect || !block) return;
@@ -32,97 +24,24 @@ function startBorderAnimation() {
   rect.setAttribute("height", Math.max(0, h - 2));
 
   const perimeter = 2 * (w + h);
-  const segment = Math.min(100, perimeter * 0.2);
+  const segment = Math.min(100, perimeter * 0.22);
 
   borderTween?.kill();
   gsap.set(rect, { strokeDasharray: `${segment} ${perimeter}`, strokeDashoffset: 0 });
   borderTween = gsap.to(rect, {
     strokeDashoffset: -perimeter,
-    duration: 4.5,
+    duration: 4,
     ease: "none",
     repeat: -1,
   });
 }
 
-function stopBorder() {
-  borderStarted = false;
+function stopBorderAnimation() {
   borderTween?.kill();
-}
-
-function updateGlow(progress) {
-  const path = hillPathRef.value;
-  if (!path || !glowRef.value) return;
-
-  const len = path.getTotalLength();
-  const tip = path.getPointAtLength(len * progress);
-  glowRef.value.setAttribute("cx", tip.x);
-  glowRef.value.setAttribute("cy", tip.y);
-  glowRef.value.setAttribute("opacity", progress > 0.02 && progress < 0.995 ? 0.9 : 0);
-}
-
-function playSequence() {
-  if (played) return;
-  played = true;
-
-  const path = hillPathRef.value;
-  if (!path) return;
-
-  const len = path.getTotalLength();
-  gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
-  updateGlow(0);
-
-  lineTimeline?.kill();
-  lineTimeline = gsap.timeline();
-
-  lineTimeline.to(path, {
-    strokeDashoffset: 0,
-    duration: 2.6,
-    ease: "power1.inOut",
-    onUpdate() {
-      updateGlow(this.progress());
-    },
-    onComplete() {
-      updateGlow(1);
-      if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
-      startBorderAnimation();
-    },
-  });
-}
-
-function resetSequence() {
-  played = false;
-  lineTimeline?.kill();
-  stopBorder();
-
-  const path = hillPathRef.value;
-  if (path) {
-    const len = path.getTotalLength();
-    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
-  }
-  if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
-}
-
-function initPath() {
-  const path = hillPathRef.value;
-  if (!path) return;
-  const len = path.getTotalLength();
-  gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
-  if (glowRef.value) glowRef.value.setAttribute("opacity", 0);
 }
 
 onMounted(() => {
   ctx = gsap.context(() => {
-    initPath();
-
-    ScrollTrigger.create({
-      trigger: sectionRef.value,
-      start: "top 72%",
-      end: "bottom 20%",
-      onEnter: playSequence,
-      onLeave: resetSequence,
-      onLeaveBack: resetSequence,
-    });
-
     gsap.from(".perspective__title, .section-tag", {
       opacity: 0,
       y: 24,
@@ -144,11 +63,19 @@ onMounted(() => {
         toggleActions: "play reverse play reverse",
       },
     });
+
+    ScrollTrigger.create({
+      trigger: quoteBlockRef.value,
+      start: "top 92%",
+      onEnter: startBorderAnimation,
+      onEnterBack: startBorderAnimation,
+      onLeave: stopBorderAnimation,
+      onLeaveBack: stopBorderAnimation,
+    });
   }, sectionRef);
 });
 
 onUnmounted(() => {
-  lineTimeline?.kill();
   borderTween?.kill();
   ctx?.revert();
 });
@@ -157,19 +84,18 @@ onUnmounted(() => {
 <template>
   <section ref="sectionRef" class="section section--dark perspective-section">
     <svg
-      class="perspective-hill"
+      class="perspective-line"
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path
-        ref="hillPathRef"
+      <line
         class="hill-line"
-        d="M 8 92 L 22 76 L 40 58 L 58 40 L 76 22 L 87 12"
-        fill="none"
+        x1="8"
+        y1="92"
+        x2="87"
+        y2="12"
       />
-
-      <circle ref="glowRef" class="hill-tip-glow" r="1.5" cx="8" cy="92" opacity="0" />
     </svg>
 
     <div class="section__inner perspective__inner">
@@ -205,7 +131,7 @@ onUnmounted(() => {
   background: #0a0a0a;
 }
 
-.perspective-hill {
+.perspective-line {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -218,14 +144,6 @@ onUnmounted(() => {
   stroke: #e8a020;
   stroke-width: 0.5;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 3px rgba(232, 160, 32, 0.5));
-}
-
-.hill-tip-glow {
-  fill: #e8a020;
-  filter: blur(0.5px) drop-shadow(0 0 2px rgba(232, 160, 32, 0.8));
-  pointer-events: none;
 }
 
 .perspective__inner {
@@ -291,12 +209,5 @@ onUnmounted(() => {
 
 .section--dark .section-tag {
   color: rgba(255, 255, 255, 0.4);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hill-line {
-    opacity: 1 !important;
-    stroke-dashoffset: 0 !important;
-  }
 }
 </style>
