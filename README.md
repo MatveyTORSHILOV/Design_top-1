@@ -1,12 +1,23 @@
 # FORMË — Выставка Ар-Деко
 
-Сайт-выставка: Vue 3 · GSAP · Three.js (TresJS). От пещерного жеста до небоскрёба ар-деко.
+Editorial exhibition site inspired by [noth.in](https://www.noth.in/) layout patterns — Vue 3, GSAP, TresJS. Art deco theme preserved.
 
 ## Стек
 
 - **Vue 3** + **Vite**
-- **GSAP** + ScrollTrigger — кинематографичные анимации
-- **TresJS** + **Three.js** — 3D-небоскрёб, поднимающийся при скролле
+- **GSAP** + ScrollTrigger
+- **TresJS** + Three.js
+
+## Паттерны (noth.in → FORMË)
+
+- Loader-счётчик (000 → 1925)
+- Минимальная навигация: salon / exposition / contact
+- Editorial hero: «Не стиль, а перспектива»
+- Секции с метками `( The ... )`
+- Works-лист с hover-preview и explore
+- Вертикальный заголовок `s a l o n`
+- Marquee-лента
+- Studio-блок с дисциплинами и хронологией
 
 ## Запуск
 
@@ -14,11 +25,3 @@
 npm install
 npm run dev
 ```
-
-## Сборка / Vercel
-
-```bash
-npm run build
-```
-
-Vercel автоматически собирает из `main` → `dist/`.
